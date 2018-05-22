@@ -3,7 +3,7 @@ from torchvision import transforms
 import torch
 import config as cf
 
-transform_train = trainsforms.Compose([
+transform_train = transforms.Compose([
     transforms.RandomCrop(32, padding = 4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),

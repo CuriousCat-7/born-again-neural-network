@@ -8,28 +8,36 @@ def weights_init_other(m):
     if isinstance(m, nn.Conv2d):
        # init.xavier_uniform(m.weight.data)
        # init.constant(m.bias.data, 0)
+       pass
 
 def weights_init_kaiming_normal(net):
     for m in net.modules():
         if isinstance(m, nn.Conv2d): # use kaiming_normal in fan_out mode
             fan_out =  m.kernel_size[0] * m.kernel_size[1] * m.out_channels
             m.weight.data.normal_(0, math.sqrt(2. / fan_out))
-            m.bias.data.zero_()
+            try:
+                m.bias.data.zero_()
+            except:
+                pass
         elif isinstance(m, nn.BatchNorm2d):
             m.weight.data.fill_(1)
             m.bias.data.zero_()
-        elif isinstance(m. nn.Linear):
+        elif isinstance(m, nn.Linear):
             fan_out = m.out_features
             m.weight.data.normal_(0, math.sqrt(1./fan_out)) # kaiming_norml with softmax
-            m.bias.data.zero_(0)
+            m.bias.data.zero_()
 
 class BasicBlock(nn.Module):
     def __init__(self, in_planes, out_planes, stride, dropRate=0.0):
         super(BasicBlock, self).__init__()
         self.bn1 = nn.BatchNorm2d(in_planes)
         self.relu1 = nn.ReLU(inplace=True)
-        self.conv1 = nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
+        try:
+            self.conv1 = nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                                padding=1, bias=False)
+        except:
+            import pdb
+            pdb.set_trace()
         self.bn2 = nn.BatchNorm2d(out_planes)
         self.relu2 = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(out_planes, out_planes, kernel_size=3, stride=1,
@@ -62,7 +70,7 @@ class NetworkBlock(nn.Module):
         return self.layer(x)
 
 class WideResNet(nn.Module):
-    def __init__(self, depth, num_classes, widen_factor=1, dropRate=0.0):
+    def __init__(self, depth, widen_factor=1,  dropRate=0.0, num_classes=100):
         super(WideResNet, self).__init__()
         nChannels = [16, 16*widen_factor, 32*widen_factor, 64*widen_factor]
         assert((depth - 4) % 6 == 0)
